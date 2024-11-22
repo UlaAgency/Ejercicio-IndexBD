@@ -103,7 +103,8 @@
             if (isIpad) {
                document.location = `veeva:gotoSlide(${veeva.zipName}${slide}.zip, ${veeva.presentationCode})`;
             } else {
-               document.location = `Ejercicio-IndexBD/${veeva.zipName}${slide}/${veeva.zipName}${slide}.html`;
+               console.log('LOCATION: ', document.location);
+               document.location = `/Ejercicio-IndexBD/${veeva.zipName}${slide}/${veeva.zipName}${slide}.html`;
             }
          } else {
             console.error('Error al cargar la configuración');
