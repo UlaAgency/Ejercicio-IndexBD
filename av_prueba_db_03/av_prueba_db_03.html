@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="e">
+
+<head>
+   <meta charset="utf-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+   <meta name="format-detection" content="telephone=no" />
+   <meta name="msapplication-tap-highlight" content="no" />
+   <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+   <meta name='author' href="https://github.com/juliansfreelance" email="jcalderon.code@gmail.com" content='Julio Calderón - Desarrollador Front-end' />
+   <title>Gestión de Asignaturas</title>
+   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+   <script src="https://cdn.tailwindcss.com"></script>
+
+   <style>
+      html {
+         background-color: #363636;
+      }
+   </style>
+</head>
+
+<body class="bg-gray-100 p-8 w-[1024px] h-[768px] mx-auto relative">
+   <div x-data="asignaturasApp()" x-init="initDB()"
+      class="container mx-auto w-full h-full bg-white p-6 rounded-lg shadow-lg">
+      <h1 class="text-2xl font-bold mb-4 text-center">Gestión de Asignaturas</h1>
+
+      <!-- Formulario -->
+      <div class="mb-6">
+         <div class="flex gap-4">
+            <input type="text" x-model="nuevoCodigo" placeholder="Código" class="w-1/2 p-2 border rounded-md">
+            <input type="text" x-model="nuevoNombre" placeholder="Nombre Asignatura"
+               class="w-1/2 p-2 border rounded-md">
+         </div>
+         <div class="mt-4">
+            <label for="maestro" class="block mb-2">Maestro</label>
+            <select x-model="nuevoMaestro" id="maestro" class="w-full p-2 border rounded-md">
+               <option value="">Seleccione un maestro</option>
+               <template x-for="persona in maestros" :key="persona.id">
+                  <option :value="persona.id" x-text="persona.nombre"></option>
+               </template>
+            </select>
+         </div>
+
+         <div class="mt-4 flex gap-2">
+            <button x-show="!asignaturaEnEdicion" @click="agregarAsignatura()"
+               class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+               Agregar Asignatura
+            </button>
+            <button x-show="asignaturaEnEdicion" @click="guardarCambios()"
+               class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
+               Guardar Cambios
+            </button>
+            <button x-show="asignaturaEnEdicion" @click="cancelarEdicion()"
+               class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+               Cancelar
+            </button>
+         </div>
+      </div>
+
+      <!-- Tabla de Asignaturas -->
+      <table class="w-full table-auto border-collapse border border-gray-300">
+         <thead>
+            <tr class="bg-gray-200">
+               <th class="border border-gray-300 p-2">Código</th>
+               <th class="border border-gray-300 p-2">Nombre Asignatura</th>
+               <th class="border border-gray-300 p-2">Maestro</th>
+               <th class="border border-gray-300 p-2">Acciones</th>
+            </tr>
+         </thead>
+         <tbody>
+            <template x-for="asignatura in asignaturas" :key="asignatura.id">
+               <tr>
+                  <td class="border border-gray-300 p-2 text-center" x-text="asignatura.codigo"></td>
+                  <td class="border border-gray-300 p-2 text-center" x-text="asignatura.nombre"></td>
+                  <td class="border border-gray-300 p-2 text-center" x-text="getNombreMaestro(asignatura.maestro.id)"></td>
+                  <td class="border border-gray-300 p-2 text-center flex gap-2 justify-center">
+                     <button @click="editarAsignatura(asignatura)"
+                        class="bg-yellow-500 text-white px-2 py-1 rounded-md hover:bg-yellow-600">
+                        Editar
+                     </button>
+                     <button @click="eliminarAsignatura(asignatura.id)"
+                        class="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600">
+                        Eliminar
+                     </button>
+                  </td>
+               </tr>
+            </template>
+         </tbody>
+      </table>
+
+      <button @click="jumptoSlide('01')" class="bg-gray-500 text-white px-4 py-2 mt-8 rounded-md hover:bg-gray-600">
+         Gestión de Cursos
+      </button>
+      <button @click="jumptoSlide('02')" class="bg-gray-500 text-white px-4 py-2 mt-8 rounded-md hover:bg-gray-600">
+         Gestión de Personas
+      </button>
+      <button @click="jumptoSlide('04')" class="bg-gray-500 text-white px-4 py-2 mt-8 rounded-md hover:bg-gray-600">
+         Asignar de Asignaturas
+      </button>
+   </div>
+
+   <script>
+      let veeva = {
+         "zipName": "av_prueba_db_",
+         "presentationCode": "00049999",
+         "slide": "03"
+      }
+      function jumptoSlide(slide) {
+         const isIpad = /iPad/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+         if (typeof veeva !== 'undefined') {
+            if (isIpad) {
+               document.location = `veeva:gotoSlide(${veeva.zipName}${slide}.zip, ${veeva.presentationCode})`;
+            } else {
+               document.location = `/${veeva.zipName}${slide}/${veeva.zipName}${slide}.html`;
+            }
+         } else {
+            console.error('Error al cargar la configuración');
+         }
+      }
+      function asignaturasApp() {
+         return {
+            db: null,
+            asignaturas: [],
+            maestros: [],
+            nuevoCodigo: '',
+            nuevoNombre: '',
+            nuevoMaestro: '',
+            asignaturaEnEdicion: null, // Mantiene la asignatura en edición
+
+            // Inicializar IndexedDB
+            initDB() {
+               const request = indexedDB.open("SchoolDB", 1); // Asegurarse de usar la versión 3
+
+               request.onupgradeneeded = (event) => {
+                  this.db = event.target.result;
+
+                  // Crear la tienda de objetos "asignaturas" si no existe
+                  if (!this.db.objectStoreNames.contains("asignaturas")) {
+                     this.db.createObjectStore("asignaturas", { keyPath: "id", autoIncrement: true });
+                  }
+
+                  // Crear la tienda de objetos "personas" si no existe
+                  if (!this.db.objectStoreNames.contains("personas")) {
+                     this.db.createObjectStore("personas", { keyPath: "id", autoIncrement: true });
+                  }
+               };
+
+               request.onsuccess = (event) => {
+                  this.db = event.target.result;
+                  this.listarAsignaturas();
+                  this.listarMaestros();
+               };
+
+               request.onerror = (event) => {
+                  console.error("Error al inicializar la base de datos:", event.target.error);
+               };
+            },
+
+            // Listar todos los maestros
+            listarMaestros() {
+               const transaction = this.db.transaction("personas", "readonly");
+               const store = transaction.objectStore("personas");
+
+               store.getAll().onsuccess = (event) => {
+                  // Filtrar solo las personas con rol "maestro"
+                  this.maestros = event.target.result.filter(persona => persona.rol === "Maestro");
+               };
+            },
+
+            // Listar todas las asignaturas
+            listarAsignaturas() {
+               const transaction = this.db.transaction("asignaturas", "readonly");
+               const store = transaction.objectStore("asignaturas");
+
+               store.getAll().onsuccess = (event) => {
+                  this.asignaturas = event.target.result;
+               };
+            },
+
+            // Agregar una nueva asignatura
+            agregarAsignatura() {
+               if (!this.nuevoCodigo || !this.nuevoNombre || !this.nuevoMaestro) {
+                  alert("Por favor completa todos los campos.");
+                  return;
+               }
+
+               const transaction = this.db.transaction("asignaturas", "readwrite");
+               const store = transaction.objectStore("asignaturas");
+
+               const nuevaAsignatura = {
+                  codigo: this.nuevoCodigo,
+                  nombre: this.nuevoNombre,
+                  maestro: { id: this.nuevoMaestro } // Solo guardamos el ID del maestro
+               };
+
+               store.add(nuevaAsignatura).onsuccess = () => {
+                  this.nuevoCodigo = '';
+                  this.nuevoNombre = '';
+                  this.nuevoMaestro = '';
+                  this.listarAsignaturas();
+               };
+            },
+
+            // Preparar edición de una asignatura
+            editarAsignatura(asignatura) {
+               this.asignaturaEnEdicion = asignatura.id;
+               this.nuevoCodigo = asignatura.codigo;
+               this.nuevoNombre = asignatura.nombre;
+               this.nuevoMaestro = asignatura.maestro.id;
+            },
+
+            // Guardar cambios de la asignatura editada
+            guardarCambios() {
+               if (!this.nuevoCodigo || !this.nuevoNombre || !this.nuevoMaestro) {
+                  alert("Por favor completa todos los campos.");
+                  return;
+               }
+
+               const transaction = this.db.transaction("asignaturas", "readwrite");
+               const store = transaction.objectStore("asignaturas");
+
+               const asignaturaActualizada = {
+                  id: this.asignaturaEnEdicion,
+                  codigo: this.nuevoCodigo,
+                  nombre: this.nuevoNombre,
+                  maestro: { id: this.nuevoMaestro }
+               };
+
+               store.put(asignaturaActualizada).onsuccess = () => {
+                  this.asignaturaEnEdicion = null;
+                  this.nuevoCodigo = '';
+                  this.nuevoNombre = '';
+                  this.nuevoMaestro = '';
+                  this.listarAsignaturas();
+               };
+            },
+
+            // Cancelar edición
+            cancelarEdicion() {
+               this.asignaturaEnEdicion = null;
+               this.nuevoCodigo = '';
+               this.nuevoNombre = '';
+               this.nuevoMaestro = '';
+            },
+
+            // Eliminar una asignatura
+            eliminarAsignatura(id) {
+               if (confirm("¿Estás seguro de eliminar esta asignatura?")) {
+                  const transaction = this.db.transaction("asignaturas", "readwrite");
+                  const store = transaction.objectStore("asignaturas");
+                  store.delete(id).onsuccess = () => {
+                     this.listarAsignaturas();
+                  };
+               }
+            },
+
+            // Obtener el nombre del maestro por su ID
+            getNombreMaestro(maestroId) {
+               const maestro = this.maestros.find(persona => persona.id === parseInt(maestroId));
+               return maestro ? maestro.nombre : 'Desconocido';
+            }
+         };
+      }
+   </script>
+</body>
+
+</html>
