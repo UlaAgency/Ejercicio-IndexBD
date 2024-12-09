@@ -1,0 +1,20 @@
+{
+  "name": "prueba_bd",
+  "version": "2.0.0",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": "Prueba de bd para calculadora adempas",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev1": "npx tailwindcss -i ./src/config.css -o ./public/av_prueba_db_01/css/style.css --watch",
+    "dev2": "npx tailwindcss -i ./src/config.css -o ./public/av_prueba_db_02/css/style.css --watch",
+    "dev3": "npx tailwindcss -i ./src/config.css -o ./public/av_prueba_db_03/css/style.css --watch",
+    "dev4": "npx tailwindcss -i ./src/config.css -o ./public/av_prueba_db_04/css/style.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.9",
+    "tailwindcss": "^3.4.16"
+  }
+}

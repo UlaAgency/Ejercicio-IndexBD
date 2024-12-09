@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+   <head>
+      <meta charset="utf-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+      <meta name="format-detection" content="telephone=no" />
+      <meta name="msapplication-tap-highlight" content="no" />
+      <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+      <meta name='author' href="https://github.com/juliansfreelance" email="jcalderon.code@gmail.com" content='Julio Calderón - Desarrollador Front-end' />
+      <title>Asignar Asignaturas a Cursos</title>
+      <link rel="stylesheet" href="./css/style.css"/>
+</head>
+
+<body class="bg-gray-100 p-8 w-[1024px] h-[768px] mx-auto relative">
+   <div class="container mx-auto w-full h-full bg-white p-6 rounded-lg shadow-lg">
+      <h1 class="text-2xl font-bold mb-4 text-center">Asignar Asignaturas a Cursos</h1>
+
+      <!-- Formulario -->
+      <div class="mb-6">
+         <div class="mb-4">
+            <label for="curso" class="block mb-2">Selecciona un Curso</label>
+            <select id="curso" class="w-full p-2 border rounded-md">
+               <option value="">Seleccione un curso</option>
+            </select>
+         </div>
+
+         <div class="mb-4">
+            <label for="asignatura" class="block mb-2">Selecciona una Asignatura</label>
+            <select id="asignatura" class="w-full p-2 border rounded-md">
+               <option value="">Seleccione una asignatura</option>
+            </select>
+         </div>
+
+         <div class="mt-4 flex gap-2">
+            <button id="assign-button" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+               Asignar Asignatura
+            </button>
+         </div>
+      </div>
+
+      <!-- Tabla de Asignaciones -->
+      <table class="w-full table-auto border-collapse border border-gray-300">
+         <thead>
+            <tr class="bg-gray-200">
+               <th class="border border-gray-300 p-2">Curso</th>
+               <th class="border border-gray-300 p-2">Asignatura</th>
+               <th class="border border-gray-300 p-2">Maestro</th>
+               <th class="border border-gray-300 p-2">Acciones</th>
+            </tr>
+         </thead>
+         <tbody id="assignments-table-body">
+         </tbody>
+      </table>
+      <div class="mt-8 flex gap-4 justify-center">
+         <button data-slide="01" class="jumpto-slide bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+            Gestión de Personas
+         </button>
+         <button data-slide="02" class="jumpto-slide bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+            Gestión de Cursos
+         </button>
+         <button data-slide="03" class="jumpto-slide bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+            AGestión de Asignaturas
+         </button>
+      </div>
+   </div>
+   <script src="js/config.js"></script>
+   <script src="js/app.js"></script>
+</body>
+
+</html>

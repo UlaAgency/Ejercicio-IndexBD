@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*::-webkit-scrollbar {
+   @apply w-1.5 h-1.5;
+}
+
+*::-webkit-scrollbar-track {
+   @apply bg-slate-300
+}
+
+*::-webkit-scrollbar-thumb {
+   @apply bg-green-400;
+}
+
+html,
+body {
+   @apply bg-slate-800;
+}
+
+* {
+   -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+   @apply select-none antialiased !important;
+}
